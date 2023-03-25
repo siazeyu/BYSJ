@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.credit.mapper.SysCreditMapper">
+    
+    <resultMap type="SysCredit" id="SysCreditResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="creditType"    column="credit_type"    />
+        <result property="remarks"    column="remarks"    />
+    </resultMap>
+
+    <sql id="selectSysCreditVo">
+        select id, user_id, credit_type, remarks from sys_credit
+    </sql>
+
+    <select id="selectSysCreditList" parameterType="SysCredit" resultMap="SysCreditResult">
+        <include refid="selectSysCreditVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="creditType != null "> and credit_type = #{creditType}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysCreditById" parameterType="Long" resultMap="SysCreditResult">
+        <include refid="selectSysCreditVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysCredit" parameterType="SysCredit" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_credit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="creditType != null">credit_type,</if>
+            <if test="remarks != null">remarks,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="creditType != null">#{creditType},</if>
+            <if test="remarks != null">#{remarks},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysCredit" parameterType="SysCredit">
+        update sys_credit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="creditType != null">credit_type = #{creditType},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysCreditById" parameterType="Long">
+        delete from sys_credit where id = #{id}
+    </delete>
+
+    <delete id="deleteSysCreditByIds" parameterType="String">
+        delete from sys_credit where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
