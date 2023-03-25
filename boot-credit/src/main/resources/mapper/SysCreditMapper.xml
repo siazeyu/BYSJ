@@ -8,11 +8,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="creditType"    column="credit_type"    />
-        <result property="remarks"    column="remarks"    />
+        <result property="credit"    column="credit"    />
+        <result property="requestFile"    column="request_file"    />
+        <result property="statue"    column="statue"    />
+        <result property="creditDate"    column="credit_date"    />
+        <result property="finalDate"    column="final_date"    />
     </resultMap>
 
     <sql id="selectSysCreditVo">
-        select id, user_id, credit_type, remarks from sys_credit
+        select id, user_id, credit_type, credit, request_file, statue, credit_date, final_date from sys_credit
     </sql>
 
     <select id="selectSysCreditList" parameterType="SysCredit" resultMap="SysCreditResult">
@@ -20,7 +24,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="creditType != null "> and credit_type = #{creditType}</if>
-            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="credit != null "> and credit = #{credit}</if>
+            <if test="requestFile != null  and requestFile != ''"> and request_file = #{requestFile}</if>
+            <if test="statue != null "> and statue = #{statue}</if>
+            <if test="params.beginCreditDate != null and params.beginCreditDate != '' and params.endCreditDate != null and params.endCreditDate != ''"> and credit_date between #{params.beginCreditDate} and #{params.endCreditDate}</if>
+            <if test="params.beginFinalDate != null and params.beginFinalDate != '' and params.endFinalDate != null and params.endFinalDate != ''"> and final_date between #{params.beginFinalDate} and #{params.endFinalDate}</if>
         </where>
     </select>
     
@@ -34,12 +42,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="creditType != null">credit_type,</if>
-            <if test="remarks != null">remarks,</if>
+            <if test="credit != null">credit,</if>
+            <if test="requestFile != null and requestFile != ''">request_file,</if>
+            <if test="statue != null">statue,</if>
+            <if test="creditDate != null">credit_date,</if>
+            <if test="finalDate != null">final_date,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="creditType != null">#{creditType},</if>
-            <if test="remarks != null">#{remarks},</if>
+            <if test="credit != null">#{credit},</if>
+            <if test="requestFile != null and requestFile != ''">#{requestFile},</if>
+            <if test="statue != null">#{statue},</if>
+            <if test="creditDate != null">#{creditDate},</if>
+            <if test="finalDate != null">#{finalDate},</if>
          </trim>
     </insert>
 
@@ -48,7 +64,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
             <if test="creditType != null">credit_type = #{creditType},</if>
-            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="credit != null">credit = #{credit},</if>
+            <if test="requestFile != null and requestFile != ''">request_file = #{requestFile},</if>
+            <if test="statue != null">statue = #{statue},</if>
+            <if test="creditDate != null">credit_date = #{creditDate},</if>
+            <if test="finalDate != null">final_date = #{finalDate},</if>
         </trim>
         where id = #{id}
     </update>
