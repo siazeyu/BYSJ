@@ -1,29 +1,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户ID" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="学分类型" prop="creditType">
-        <el-input
-          v-model="queryParams.creditType"
-          placeholder="请输入学分类型"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="学分值" prop="credit">
-        <el-input
-          v-model="queryParams.credit"
-          placeholder="请输入学分值"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <treeselect v-model="queryParams.creditType"
+                    :options="typeOptions"
+                    :normalizer="normalizer"
+                    :disable-branch-nodes="true"
+                    style="width: 240px"
+                    clearable
+                    @keyup.enter.native="handleQuery"
+                    placeholder="请选择学分类型"/>
       </el-form-item>
       <el-form-item label="状态" prop="statue">
         <el-select v-model="queryParams.statue" placeholder="请选择状态" clearable>
@@ -111,10 +97,13 @@
 
     <el-table v-loading="loading" :data="creditList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="id" align="center" prop="id" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="学分类型" align="center" prop="creditType" />
-      <el-table-column label="学分值" align="center" prop="credit" />
+      <el-table-column label="学号" align="center" prop="username"/>
+      <el-table-column label="学分类型" align="center" prop="statue">
+        <template slot-scope="scope">
+          <treeselect disabled v-model="scope.row.creditType" :options="typeOptions" :normalizer="normalizer" />
+        </template>
+      </el-table-column>
+      <el-table-column label="学分值" align="center" prop="credit"/>
       <el-table-column label="申请附件" align="center" prop="requestFile" />
       <el-table-column label="状态" align="center" prop="statue">
         <template slot-scope="scope">
@@ -150,7 +139,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -162,42 +151,22 @@
     <!-- 添加或修改学分申请对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户ID" />
+        <el-form-item label="学号" prop="username">
+          <el-input v-model="form.username" placeholder="用户学号" disabled/>
         </el-form-item>
+
         <el-form-item label="学分类型" prop="creditType">
-          <el-input v-model="form.creditType" placeholder="请输入学分类型" />
+          <treeselect :disable-branch-nodes="true" @select="node => change(node)" v-model="form.creditType" :options="typeOptions" :normalizer="normalizer" placeholder="选择学分类型" />
+        </el-form-item>
+
+        <el-form-item label="学分类型" prop="creditType">
+          <el-input v-model="form.creditType" placeholder="请选择学分类型" />
         </el-form-item>
         <el-form-item label="学分值" prop="credit">
-          <el-input v-model="form.credit" placeholder="请输入学分值" />
+          <el-input v-model="credit" placeholder="学分值" disabled/>
         </el-form-item>
         <el-form-item label="申请附件" prop="requestFile">
           <file-upload v-model="form.requestFile"/>
-        </el-form-item>
-        <el-form-item label="状态" prop="statue">
-          <el-radio-group v-model="form.statue">
-            <el-radio
-              v-for="dict in dict.type.sys_credit_status"
-              :key="dict.value"
-              :label="parseInt(dict.value)"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="申请时间" prop="creditDate">
-          <el-date-picker clearable
-            v-model="form.creditDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择申请时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="完成时间" prop="finalDate">
-          <el-date-picker clearable
-            v-model="form.finalDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择完成时间">
-          </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -210,10 +179,15 @@
 
 <script>
 import { listCredit, getCredit, delCredit, addCredit, updateCredit } from "@/api/credit/credit";
+import {listType} from "@/api/credit/type";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import Cookies from "js-cookie";
 
 export default {
   name: "Credit",
   dicts: ['sys_credit_status'],
+  components: { Treeselect },
   data() {
     return {
       // 遮罩层
@@ -230,6 +204,8 @@ export default {
       total: 0,
       // 学分申请表格数据
       creditList: [],
+      // 学分类型数据
+      typeOptions :[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -252,28 +228,24 @@ export default {
       },
       // 表单参数
       form: {},
+      // 学分值
+      credit: null,
       // 表单校验
       rules: {
-        userId: [
-          { required: true, message: "用户ID不能为空", trigger: "blur" }
-        ],
         creditType: [
           { required: true, message: "学分类型不能为空", trigger: "blur" }
         ],
-        credit: [
-          { required: true, message: "学分值不能为空", trigger: "blur" }
-        ],
         requestFile: [
           { required: true, message: "申请附件不能为空", trigger: "blur" }
-        ],
-        statue: [
-          { required: true, message: "状态不能为空", trigger: "change" }
         ],
       }
     };
   },
   created() {
     this.getList();
+    listType().then(response => {
+      this.typeOptions = this.handleTree(response.data, "typeId");
+    });
   },
   methods: {
     /** 查询学分申请列表 */
@@ -293,6 +265,22 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    /** 转换学分类型结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.typeId,
+        label: node.typeName,
+        children: node.children,
+      };
+    },
+
+    // 学分类型修改
+    change(node){
+      this.credit = node.point
     },
     // 取消按钮
     cancel() {
@@ -333,9 +321,14 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
+      this.credit = null;
       this.reset();
       this.open = true;
+      this.form.username = Cookies.get("username");
       this.title = "添加学分申请";
+      listType().then(response => {
+        this.typeOptions = this.handleTree(response.data, "typeId");
+      });
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

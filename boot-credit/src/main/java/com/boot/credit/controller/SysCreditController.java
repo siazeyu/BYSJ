@@ -1,7 +1,13 @@
 package com.boot.credit.controller;
 
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.boot.common.core.domain.model.LoginUser;
+import com.boot.credit.domain.CreditStatue;
+import com.boot.credit.domain.SysCreditType;
+import com.boot.credit.service.ISysCreditTypeService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +39,9 @@ public class SysCreditController extends BaseController
 {
     @Autowired
     private ISysCreditService sysCreditService;
+
+    @Autowired
+    private ISysCreditTypeService sysCreditTypeService;
 
     /**
      * 查询学分申请列表
@@ -77,6 +86,13 @@ public class SysCreditController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody SysCredit sysCredit)
     {
+        sysCredit.setCreditDate(new Date());
+        LoginUser loginUser = getLoginUser();
+        sysCredit.setUserId(loginUser.getUserId());
+        sysCredit.setUsername(loginUser.getUsername());
+        sysCredit.setStatue(CreditStatue.APPLYING);
+        SysCreditType sysCreditType = sysCreditTypeService.selectSysCreditTypeByTypeId(sysCredit.getCreditType());
+        sysCredit.setCredit(sysCreditType.getPoint());
         return toAjax(sysCreditService.insertSysCredit(sysCredit));
     }
 

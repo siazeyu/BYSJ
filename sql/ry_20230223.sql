@@ -697,3 +697,23 @@ create table gen_table_column (
   update_time       datetime                                   comment '更新时间',
   primary key (column_id)
 ) engine=innodb auto_increment=1 comment = '代码生成业务表字段';
+
+
+create table sys_credit_type
+(
+    type_id     bigint auto_increment comment '加分项id'
+        primary key,
+    parent_id   bigint      default 0   null comment '父部门id',
+    ancestors   varchar(50) default ''  null comment '祖级列表',
+    type_name   varchar(30) default ''  null comment '名称',
+    point       decimal                 null comment '分值',
+    order_num   int(4)      default 0   null comment '显示顺序',
+    status      char        default '0' null comment '状态（0正常 1停用）',
+    del_flag    char        default '0' null comment '删除标志（0代表存在 2代表删除）',
+    create_by   varchar(64) default ''  null comment '创建者',
+    create_time datetime                null comment '创建时间',
+    update_by   varchar(64) default ''  null comment '更新者',
+    update_time datetime                null comment '更新时间'
+)
+    comment '加分项表' engine = InnoDB;
+

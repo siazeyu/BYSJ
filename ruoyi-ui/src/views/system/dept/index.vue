@@ -279,7 +279,7 @@ export default {
       this.open = true;
       this.title = "添加部门";
       listDept().then(response => {
-        this.deptOptions = this.handleTree(response.data, "deptId");
+        this.typeOptions = this.handleTree(response.data, "deptId");
       });
     },
     /** 展开/折叠操作 */

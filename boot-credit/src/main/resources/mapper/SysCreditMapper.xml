@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="SysCredit" id="SysCreditResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
+        <result property="username"    column="username"    />
         <result property="creditType"    column="credit_type"    />
         <result property="credit"    column="credit"    />
         <result property="requestFile"    column="request_file"    />
@@ -16,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSysCreditVo">
-        select id, user_id, credit_type, credit, request_file, statue, credit_date, final_date from sys_credit
+        select id, user_id, username, credit_type, credit, request_file, statue, credit_date, final_date from sys_credit
     </sql>
 
     <select id="selectSysCreditList" parameterType="SysCredit" resultMap="SysCreditResult">
@@ -41,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into sys_credit
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
+            <if test="username != null">username,</if>
             <if test="creditType != null">credit_type,</if>
             <if test="credit != null">credit,</if>
             <if test="requestFile != null and requestFile != ''">request_file,</if>
@@ -50,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
+            <if test="username != null">#{username},</if>
             <if test="creditType != null">#{creditType},</if>
             <if test="credit != null">#{credit},</if>
             <if test="requestFile != null and requestFile != ''">#{requestFile},</if>

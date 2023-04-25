@@ -1,5 +1,6 @@
 package com.boot.credit.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.boot.common.core.domain.BaseEntity;
@@ -25,13 +26,16 @@ public class SysCredit extends BaseEntity
     @Excel(name = "用户ID")
     private Long userId;
 
+    @Excel(name = "用户学号")
+    private String username;
+
     /** 学分类型 */
     @Excel(name = "学分类型")
     private Long creditType;
 
     /** 学分值 */
     @Excel(name = "学分值")
-    private Long credit;
+    private BigDecimal credit;
 
     /** 申请附件 */
     @Excel(name = "申请附件")
@@ -78,12 +82,20 @@ public class SysCredit extends BaseEntity
     {
         return creditType;
     }
-    public void setCredit(Long credit) 
+    public void setCredit(BigDecimal credit)
     {
         this.credit = credit;
     }
 
-    public Long getCredit() 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String userName) {
+        this.username = userName;
+    }
+
+    public BigDecimal getCredit()
     {
         return credit;
     }

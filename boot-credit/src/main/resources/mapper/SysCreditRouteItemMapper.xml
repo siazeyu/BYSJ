@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.credit.mapper.SysCreditRouteItemMapper">
+    
+    <resultMap type="SysCreditRouteItem" id="SysCreditRouteItemResult">
+        <result property="id"    column="id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+    </resultMap>
+
+    <sql id="selectSysCreditRouteItemVo">
+        select id, parent_id, dept_id, dept_name from sys_credit_route_item
+    </sql>
+
+    <select id="selectSysCreditRouteItemList" parameterType="SysCreditRouteItem" resultMap="SysCreditRouteItemResult">
+        <include refid="selectSysCreditRouteItemVo"/>
+        <where>  
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysCreditRouteItemById" parameterType="Long" resultMap="SysCreditRouteItemResult">
+        <include refid="selectSysCreditRouteItemVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysCreditRouteItem" parameterType="SysCreditRouteItem" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_credit_route_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">parent_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">#{parentId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysCreditRouteItem" parameterType="SysCreditRouteItem">
+        update sys_credit_route_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysCreditRouteItemById" parameterType="Long">
+        delete from sys_credit_route_item where id = #{id}
+    </delete>
+
+    <delete id="deleteSysCreditRouteItemByIds" parameterType="String">
+        delete from sys_credit_route_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
