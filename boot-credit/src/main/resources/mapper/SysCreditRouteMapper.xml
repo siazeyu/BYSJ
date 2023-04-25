@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.credit.mapper.SysCreditRouteMapper">
+    
+    <resultMap type="SysCreditRoute" id="SysCreditRouteResult">
+        <result property="routeId"    column="route_id"    />
+        <result property="startId"    column="start_id"    />
+        <result property="routeName"    column="route_name"    />
+        <result property="routes"    column="routes"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSysCreditRouteVo">
+        select route_id, start_id, route_name, routes, status, create_by, create_time, update_by, update_time from sys_credit_route
+    </sql>
+
+    <select id="selectSysCreditRouteList" parameterType="SysCreditRoute" resultMap="SysCreditRouteResult">
+        <include refid="selectSysCreditRouteVo"/>
+        <where>  
+            <if test="routeName != null  and routeName != ''"> and route_name like concat('%', #{routeName}, '%')</if>
+            <if test="routes != null  and routes != ''"> and routes = #{routes}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysCreditRouteByRouteId" parameterType="Long" resultMap="SysCreditRouteResult">
+        <include refid="selectSysCreditRouteVo"/>
+        where route_id = #{routeId}
+    </select>
+        
+    <insert id="insertSysCreditRoute" parameterType="SysCreditRoute" useGeneratedKeys="true" keyProperty="routeId">
+        insert into sys_credit_route
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="startId != null">start_id,</if>
+            <if test="routeName != null">route_name,</if>
+            <if test="routes != null">routes,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="startId != null">#{startId},</if>
+            <if test="routeName != null">#{routeName},</if>
+            <if test="routes != null">#{routes},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysCreditRoute" parameterType="SysCreditRoute">
+        update sys_credit_route
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="startId != null">start_id = #{startId},</if>
+            <if test="routeName != null">route_name = #{routeName},</if>
+            <if test="routes != null">routes = #{routes},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where route_id = #{routeId}
+    </update>
+
+    <delete id="deleteSysCreditRouteByRouteId" parameterType="Long">
+        delete from sys_credit_route where route_id = #{routeId}
+    </delete>
+
+    <delete id="deleteSysCreditRouteByRouteIds" parameterType="String">
+        delete from sys_credit_route where route_id in 
+        <foreach item="routeId" collection="array" open="(" separator="," close=")">
+            #{routeId}
+        </foreach>
+    </delete>
+</mapper>
