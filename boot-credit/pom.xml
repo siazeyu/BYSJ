@@ -15,7 +15,7 @@
 
         <dependency>
             <groupId>com.ruoyi</groupId>
-            <artifactId>boot-common</artifactId>
+            <artifactId>boot-system</artifactId>
             <version>3.8.5</version>
         </dependency>
 

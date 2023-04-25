@@ -77,6 +77,7 @@ public class SysCreditRouteController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody SysCreditRoute sysCreditRoute)
     {
+        sysCreditRoute.setCreateBy(getUsername());
         return toAjax(sysCreditRouteService.insertSysCreditRoute(sysCreditRoute));
     }
 

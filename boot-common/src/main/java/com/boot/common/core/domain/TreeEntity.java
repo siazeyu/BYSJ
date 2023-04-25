@@ -76,4 +76,8 @@ public class TreeEntity<T> extends BaseEntity
     {
         this.children = children;
     }
+
+    public void addChildren(T children){
+        this.children.add(children);
+    }
 }

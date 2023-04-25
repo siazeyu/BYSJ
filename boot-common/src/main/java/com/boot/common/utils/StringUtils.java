@@ -325,6 +325,25 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     }
 
     /**
+     * 字符数组转字符串
+     * @param str 字符数组
+     * @param sep 分隔符
+     * @return 结果
+     */
+    public static final String list2String(List<Object> str, String sep){
+        StringBuilder builder = new StringBuilder();
+        for (Object s : str) {
+            builder.append(s).append(sep);
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+
+    public static final String list2String(List<Object> str){
+        return list2String(str, ",");
+    }
+
+    /**
      * 判断给定的set列表中是否包含数组array 判断给定的数组array中是否包含给定的元素value
      *
      * @param set 给定的集合

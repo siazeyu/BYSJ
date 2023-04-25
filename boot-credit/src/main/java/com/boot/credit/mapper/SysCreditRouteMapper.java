@@ -1,6 +1,8 @@
 package com.boot.credit.mapper;
 
 import java.util.List;
+
+import com.boot.credit.domain.DoubleLinkedNode;
 import com.boot.credit.domain.SysCreditRoute;
 
 /**
@@ -58,4 +60,6 @@ public interface SysCreditRouteMapper
      * @return 结果
      */
     public int deleteSysCreditRouteByRouteIds(Long[] routeIds);
+
+
 }

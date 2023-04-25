@@ -1,16 +1,24 @@
 package com.boot.credit.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.boot.common.core.domain.entity.SysDept;
 import com.boot.common.utils.DateUtils;
+import com.boot.common.utils.StringUtils;
+import com.boot.credit.domain.DoubleLinkedNode;
 import com.boot.credit.domain.SysCreditRouteItem;
 import com.boot.credit.service.ISysCreditRouteItemService;
+import com.boot.system.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.boot.credit.mapper.SysCreditRouteMapper;
 import com.boot.credit.domain.SysCreditRoute;
 import com.boot.credit.service.ISysCreditRouteService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 申请路线Service业务层处理
@@ -27,8 +35,8 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
     @Autowired
     private ISysCreditRouteItemService sysCreditRouteItemService;
 
-//    @Autowired
-//    private
+    @Autowired
+    private ISysDeptService iSysDeptService;
 
     /**
      * 查询申请路线
@@ -39,7 +47,11 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
     @Override
     public SysCreditRoute selectSysCreditRouteByRouteId(Long routeId)
     {
-        return sysCreditRouteMapper.selectSysCreditRouteByRouteId(routeId);
+        SysCreditRouteItem routeItem = new SysCreditRouteItem();
+        routeItem.setRouteId(routeId);
+        SysCreditRoute sysCreditRoute = sysCreditRouteMapper.selectSysCreditRouteByRouteId(routeId);
+        sysCreditRoute.setData(sysCreditRouteItemService.selectSysCreditRouteItemList(routeItem));
+        return sysCreditRoute;
     }
 
     /**
@@ -60,12 +72,35 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
      * @param sysCreditRoute 申请路线
      * @return 结果
      */
+    @Transactional
     @Override
     public int insertSysCreditRoute(SysCreditRoute sysCreditRoute)
     {
 
         sysCreditRoute.setCreateTime(DateUtils.getNowDate());
-        return sysCreditRouteMapper.insertSysCreditRoute(sysCreditRoute);
+        int res = sysCreditRouteMapper.insertSysCreditRoute(sysCreditRoute);
+        DoubleLinkedNode<SysDept> item = sortItem(sysCreditRoute.getData());
+        DoubleLinkedNode<SysDept> parent = item.getParent();
+
+        SysCreditRouteItem last = null;
+        while (parent != null){
+            List<SysDept> data = parent.getData();
+            SysCreditRouteItem insert = new SysCreditRouteItem();
+            insert.setRouteId(sysCreditRoute.getRouteId());
+            if (last != null){
+               insert.setParentId(last.getId());
+            }
+            insert.setDeptId(StringUtils.list2String(data.stream().map(SysDept::getDeptId).collect(Collectors.toList())));
+            insert.setDeptName(StringUtils.list2String(data.stream().map(SysDept::getDeptName).collect(Collectors.toList())));
+            sysCreditRouteItemService.insertSysCreditRouteItem(insert);
+            if (last != null){
+                last.setNextId(insert.getId());
+                sysCreditRouteItemService.updateSysCreditRouteItem(last);
+            }
+            last = insert;
+            parent = parent.getNext();
+        }
+        return res;
     }
 
     /**
@@ -105,9 +140,36 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
         return sysCreditRouteMapper.deleteSysCreditRouteByRouteId(routeId);
     }
 
-    private SysCreditRouteItem formatItem(List<SysCreditRouteItem> items){
-        List<Long> collect = items.stream().map(item -> item.getDeptId()).collect(Collectors.toList());
+    /**
+     * 阶段排序
+     * @param items
+     * @return 排序好的阶段
+     */
+    private DoubleLinkedNode<SysDept> sortItem(List<SysCreditRouteItem> items){
+        List<Long> collect = items.stream().map(item -> Long.parseLong(item.getDeptId())).collect(Collectors.toList());
+        ArrayList<SysDept> list = new ArrayList<>();
+        for (Long id : collect) {
+            SysDept sysDept = iSysDeptService.selectDeptById(id);
+            list.add(sysDept);
+        }
 
-        return null;
+        Collections.sort(list, Comparator.comparingInt(a -> a.getAncestors().split(",").length));
+        DoubleLinkedNode result = new DoubleLinkedNode<SysDept>();
+
+        for (int i = 0; i < list.size(); i++) {
+            SysDept sysDept = list.get(i);
+            if (i == 0 || list.get(i - 1).getAncestors().split(",").length == sysDept.getAncestors().split(",").length){
+                result.addData(sysDept);
+            }else {
+                DoubleLinkedNode next = new DoubleLinkedNode();
+                next.addData(sysDept);
+                next.setLast(result);
+                result.setNext(next);
+                result = next;
+            }
+        }
+        return result;
     }
+
+
 }

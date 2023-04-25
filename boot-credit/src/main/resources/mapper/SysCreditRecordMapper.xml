@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.credit.mapper.SysCreditRecordMapper">
+    
+    <resultMap type="SysCreditRecord" id="SysCreditRecordResult">
+        <result property="recordId"    column="record_id"    />
+        <result property="applyId"    column="apply_id"    />
+        <result property="creditTypeId"    column="credit_type_id"    />
+        <result property="creditTypeName"    column="credit_type_name"    />
+        <result property="credit"    column="credit"    />
+        <result property="applicants"    column="applicants"    />
+        <result property="operator"    column="operator"    />
+        <result property="result"    column="result"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="objectiveCredit"    column="objective_credit"    />
+        <result property="remarks"    column="remarks"    />
+    </resultMap>
+
+    <sql id="selectSysCreditRecordVo">
+        select record_id, apply_id, credit_type_id, credit_type_name, credit, applicants, operator, result, create_date, objective_credit, remarks from sys_credit_record
+    </sql>
+
+    <select id="selectSysCreditRecordList" parameterType="SysCreditRecord" resultMap="SysCreditRecordResult">
+        <include refid="selectSysCreditRecordVo"/>
+        <where>  
+            <if test="applyId != null "> and apply_id = #{applyId}</if>
+            <if test="creditTypeId != null "> and credit_type_id = #{creditTypeId}</if>
+            <if test="creditTypeName != null  and creditTypeName != ''"> and credit_type_name like concat('%', #{creditTypeName}, '%')</if>
+            <if test="applicants != null  and applicants != ''"> and applicants = #{applicants}</if>
+            <if test="operator != null  and operator != ''"> and operator = #{operator}</if>
+            <if test="result != null "> and result = #{result}</if>
+            <if test="createDate != null "> and create_date = #{createDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysCreditRecordByRecordId" parameterType="Long" resultMap="SysCreditRecordResult">
+        <include refid="selectSysCreditRecordVo"/>
+        where record_id = #{recordId}
+    </select>
+        
+    <insert id="insertSysCreditRecord" parameterType="SysCreditRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into sys_credit_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">apply_id,</if>
+            <if test="creditTypeId != null">credit_type_id,</if>
+            <if test="creditTypeName != null and creditTypeName != ''">credit_type_name,</if>
+            <if test="credit != null">credit,</if>
+            <if test="applicants != null">applicants,</if>
+            <if test="operator != null">operator,</if>
+            <if test="result != null">result,</if>
+            <if test="createDate != null">create_date,</if>
+            <if test="objectiveCredit != null">objective_credit,</if>
+            <if test="remarks != null">remarks,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId != null">#{applyId},</if>
+            <if test="creditTypeId != null">#{creditTypeId},</if>
+            <if test="creditTypeName != null and creditTypeName != ''">#{creditTypeName},</if>
+            <if test="credit != null">#{credit},</if>
+            <if test="applicants != null">#{applicants},</if>
+            <if test="operator != null">#{operator},</if>
+            <if test="result != null">#{result},</if>
+            <if test="createDate != null">#{createDate},</if>
+            <if test="objectiveCredit != null">#{objectiveCredit},</if>
+            <if test="remarks != null">#{remarks},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysCreditRecord" parameterType="SysCreditRecord">
+        update sys_credit_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applyId != null">apply_id = #{applyId},</if>
+            <if test="creditTypeId != null">credit_type_id = #{creditTypeId},</if>
+            <if test="creditTypeName != null and creditTypeName != ''">credit_type_name = #{creditTypeName},</if>
+            <if test="credit != null">credit = #{credit},</if>
+            <if test="applicants != null">applicants = #{applicants},</if>
+            <if test="operator != null">operator = #{operator},</if>
+            <if test="result != null">result = #{result},</if>
+            <if test="createDate != null">create_date = #{createDate},</if>
+            <if test="objectiveCredit != null">objective_credit = #{objectiveCredit},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+
+    <delete id="deleteSysCreditRecordByRecordId" parameterType="Long">
+        delete from sys_credit_record where record_id = #{recordId}
+    </delete>
+
+    <delete id="deleteSysCreditRecordByRecordIds" parameterType="String">
+        delete from sys_credit_record where record_id in 
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+            #{recordId}
+        </foreach>
+    </delete>
+</mapper>

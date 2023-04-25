@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="申请路线名称" prop="routeName">
+      <el-form-item label="名称" prop="routeName">
         <el-input
           v-model="queryParams.routeName"
           placeholder="请输入申请路线名称"
@@ -85,8 +85,9 @@
 
     <el-table v-loading="loading" :data="routeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="编号" align="center" prop="routeId"/>
       <el-table-column label="申请路线名称" align="center" prop="routeName"/>
-      <el-table-column label="路线信息" align="center" prop="routes"/>
+      <el-table-column label="备注" align="center" prop="routes"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_show_hide" :value="scope.row.status"/>
@@ -129,11 +130,12 @@
           <el-input v-model="form.routeName" placeholder="请输入名称"/>
         </el-form-item>
 
-        <el-form-item label="路线信息" prop="routes">
+        <el-form-item label="路线信息" prop="routes" style="max-height: 400px;display: block;overflow-y: scroll;">
           <el-tree
             class="tree-border"
             :data="deptOptions"
             show-checkbox
+            default-expand-all
             ref="dept"
             :check-strictly="true"
             node-key="id"
@@ -151,6 +153,10 @@
             >{{ dict.label }}
             </el-radio>
           </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="备注" prop="routes">
+          <el-input v-model="form.routes" placeholder="备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -202,7 +208,11 @@ export default {
       // 表单参数
       form: {},
       // 表单校验
-      rules: {}
+      rules: {
+        routeName: [
+          { required: true, message: "不能为空", trigger: "blur" }
+        ],
+      }
     };
   },
   created() {
@@ -267,22 +277,32 @@ export default {
       this.reset();
       this.open = true;
       this.title = "添加申请路线";
+      this.$refs['dept'].setCheckedKeys([])
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+      // setCheckedNodes
       this.reset();
+      this.open = true;
+
+      deptTreeSelect().then(response => {
+        this.deptOptions = response.data;
+      });
       const routeId = row.routeId || this.ids
       getRoute(routeId).then(response => {
         this.form = response.data;
-        this.open = true;
         this.title = "修改申请路线";
+        let map = response.data.data.map(v => v.deptId);
+        let ids = [];
+        map.forEach(v => v.split(',').forEach(s => ids.push(s)));
+        console.log(this.$refs['dept'])
+        this.$refs['dept'].setCheckedKeys(ids)
       });
     },
     /** 提交按钮 */
     submitForm() {
       let node = this.$refs['dept'].getCheckedNodes();
-      // node.forEach(item => delete item.children)
-      console.log(node)
+      node.forEach(item => delete item.children)
       this.form.data = node.map(item => {
         return {
           deptId: item.id,

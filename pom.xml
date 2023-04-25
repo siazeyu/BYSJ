@@ -10,7 +10,7 @@
 
     <name>ruoyi</name>
     <url>http://www.ruoyi.vip</url>
-    <description>若依管理系统</description>
+    <description>学分管理系统</description>
 
     <properties>
         <ruoyi.version>3.8.5</ruoyi.version>
@@ -179,7 +179,6 @@
         <module>boot-admin</module>
         <module>boot-framework</module>
         <module>boot-system</module>
-        <module>boot-quartz</module>
         <module>boot-generator</module>
         <module>boot-common</module>
         <module>boot-credit</module>

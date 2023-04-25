@@ -1,7 +1,7 @@
 # 项目相关配置
 boot:
   # 名称
-  name: RuoYi
+  name: CreditService
   # 版本
   version: 3.8.5
   # 版权年份
@@ -36,7 +36,7 @@ server:
 # 日志配置
 logging:
   level:
-    com.ruoyi: debug
+    com.boot: debug
     org.springframework: warn
 
 # 用户配置
@@ -97,7 +97,7 @@ token:
     # 令牌密钥
     secret: abcdefghijklmnopqrstuvwxyz
     # 令牌有效期（默认30分钟）
-    expireTime: 30
+    expireTime: 1200
   
 # MyBatis配置
 mybatis:

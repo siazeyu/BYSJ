@@ -18,9 +18,15 @@ public class SysCreditRouteItem extends TreeEntity
     /** id */
     private Long id;
 
+    /** 路线ID */
+    private Long routeId;
+
+    /** 下阶段id */
+    private Long nextId;
+
     /** 部门id */
     @Excel(name = "部门id")
-    private Long deptId;
+    private String deptId;
 
     /** 部门名称 */
     @Excel(name = "部门名称")
@@ -35,12 +41,30 @@ public class SysCreditRouteItem extends TreeEntity
     {
         return id;
     }
-    public void setDeptId(Long deptId) 
+
+    public Long getRouteId() {
+        return routeId;
+    }
+
+    public void setRouteId(Long routeId) {
+        this.routeId = routeId;
+    }
+
+    public void setNextId(Long nextId)
+    {
+        this.nextId = nextId;
+    }
+
+    public Long getNextId() 
+    {
+        return nextId;
+    }
+    public void setDeptId(String deptId) 
     {
         this.deptId = deptId;
     }
 
-    public Long getDeptId() 
+    public String getDeptId() 
     {
         return deptId;
     }
@@ -59,6 +83,7 @@ public class SysCreditRouteItem extends TreeEntity
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("parentId", getParentId())
+            .append("nextId", getNextId())
             .append("deptId", getDeptId())
             .append("deptName", getDeptName())
             .toString();

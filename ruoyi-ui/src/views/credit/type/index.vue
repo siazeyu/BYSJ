@@ -67,7 +67,10 @@
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
       <el-table-column label="名称" align="center" prop="typeName" />
-      <el-table-column label="分值" align="center" prop="point" >
+      <el-table-column label="分值" align="center" prop="point">
+        <template slot-scope="scope">
+          <span v-if="scope.row.point != 0"> {{scope.row.point}} </span>
+        </template>
       </el-table-column>
       <el-table-column label="显示顺序" align="center" prop="orderNum" />
       <el-table-column label="状态" align="center" prop="status">
@@ -75,6 +78,7 @@
           <dict-tag :options="dict.type.sys_show_hide" :value="scope.row.status"/>
         </template>
       </el-table-column>
+
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -112,7 +116,7 @@
           <el-input v-model="form.typeName" placeholder="请输入名称" />
         </el-form-item>
         <el-form-item label="分值" prop="point">
-          <el-input v-model="form.point" placeholder="请输入分值" />
+          <el-input type="number" v-model="form.point" placeholder="请输入分值" />
         </el-form-item>
         <el-form-item label="显示顺序" prop="orderNum">
           <el-input v-model="form.orderNum" placeholder="请输入显示顺序" />
@@ -126,9 +130,7 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="删除标志" prop="delFlag">
-          <el-input v-model="form.delFlag" placeholder="请输入删除标志" />
-        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -180,6 +182,15 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        status: [
+          { required: true, message: "不能为空", trigger: "blur" }
+        ],
+        parentId: [
+          { required: true, message: "不能为空", trigger: "blur" }
+        ],
+        typeName: [
+          { required: true, message: "不能为空", trigger: "blur" }
+        ],
       }
     };
   },
