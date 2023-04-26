@@ -1,6 +1,8 @@
 package com.boot.credit.service.impl;
 
 import java.util.List;
+
+import com.boot.credit.domain.SysCreditRouteItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.boot.credit.mapper.SysCreditMapper;
@@ -41,6 +43,11 @@ public class SysCreditServiceImpl implements ISysCreditService
     public List<SysCredit> selectSysCreditList(SysCredit sysCredit)
     {
         return sysCreditMapper.selectSysCreditList(sysCredit);
+    }
+
+    @Override
+    public List<SysCredit> selectSysCreditListByItems(List<Long> itemIds) {
+        return sysCreditMapper.selectSysCreditListByItems(itemIds);
     }
 
     /**

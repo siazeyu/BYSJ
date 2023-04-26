@@ -2,14 +2,17 @@ package com.boot.credit.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import com.boot.common.core.domain.model.LoginUser;
-import com.boot.credit.domain.CreditStatue;
-import com.boot.credit.domain.SysCreditType;
-import com.boot.credit.service.ISysCreditTypeService;
+import com.boot.common.exception.ServiceException;
+import com.boot.common.utils.DateUtils;
+import com.boot.credit.domain.*;
+import com.boot.credit.service.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,8 +25,6 @@ import com.boot.common.annotation.Log;
 import com.boot.common.core.controller.BaseController;
 import com.boot.common.core.domain.AjaxResult;
 import com.boot.common.enums.BusinessType;
-import com.boot.credit.domain.SysCredit;
-import com.boot.credit.service.ISysCreditService;
 import com.boot.common.utils.poi.ExcelUtil;
 import com.boot.common.core.page.TableDataInfo;
 
@@ -43,6 +44,17 @@ public class SysCreditController extends BaseController
     @Autowired
     private ISysCreditTypeService sysCreditTypeService;
 
+    @Autowired
+    private ISysCreditRecordService sysCreditRecordService;
+
+    @Autowired
+    private ISysCreditRouteService sysCreditRouteService;
+
+    @Autowired
+    private ISysCreditRouteItemService sysCreditRouteItemService;
+
+
+
     /**
      * 查询学分申请列表
      */
@@ -52,6 +64,20 @@ public class SysCreditController extends BaseController
     {
         startPage();
         List<SysCredit> list = sysCreditService.selectSysCreditList(sysCredit);
+        return getDataTable(list);
+    }
+
+    /**
+     * 查询学分申请列表
+     */
+    @PreAuthorize("@ss.hasPermi('credit:credit:list')")
+    @GetMapping("/getApproval")
+    public TableDataInfo getApproval()
+    {
+        List<SysCreditRouteItem> items = sysCreditRouteItemService.selectSysCreditRouteItemListByDeptId(getLoginUser().getDeptId());
+        List<Long> collect = items.stream().map(SysCreditRouteItem::getId).collect(Collectors.toList());
+        startPage();
+        List<SysCredit> list = sysCreditService.selectSysCreditListByItems(collect);
         return getDataTable(list);
     }
 
@@ -78,6 +104,7 @@ public class SysCreditController extends BaseController
         return success(sysCreditService.selectSysCreditById(id));
     }
 
+
     /**
      * 新增学分申请
      */
@@ -93,6 +120,16 @@ public class SysCreditController extends BaseController
         sysCredit.setStatue(CreditStatue.APPLYING);
         SysCreditType sysCreditType = sysCreditTypeService.selectSysCreditTypeByTypeId(sysCredit.getCreditType());
         sysCredit.setCredit(sysCreditType.getPoint());
+        Long deptId = getLoginUser().getDeptId();
+
+        // 获取第一个审批阶段
+        List<SysCreditRouteItem> items = sysCreditRouteItemService.selectSysCreditRouteItemListByDeptId(deptId);
+        for (SysCreditRouteItem item : items) {
+            if (item.getNextId() != null && item.getNextId() != 0){
+                sysCredit.setItemId(item.getId());
+                break;
+            }
+        }
         return toAjax(sysCreditService.insertSysCredit(sysCredit));
     }
 
@@ -117,4 +154,46 @@ public class SysCreditController extends BaseController
     {
         return toAjax(sysCreditService.deleteSysCreditByIds(ids));
     }
+
+
+    /**
+     * 审批学分申请
+     */
+    @PreAuthorize("@ss.hasPermi('credit:credit:approval')")
+    @Log(title = "学分申请审批", businessType = BusinessType.UPDATE)
+    @Transactional
+    @PutMapping("/approval")
+    public AjaxResult approval(@RequestBody SysCreditRecord sysCreditRecord)
+    {
+        SysCredit sysCredit = sysCreditService.selectSysCreditById(sysCreditRecord.getApplyId());
+        SysCreditType sysCreditType = sysCreditTypeService.selectSysCreditTypeByTypeId(sysCredit.getCreditType());
+        sysCreditRecord.setCredit(sysCredit.getCredit());
+        sysCreditRecord.setCreditTypeId(sysCreditType.getTypeId());
+        sysCreditRecord.setCreditTypeName(sysCreditType.getTypeName());
+        sysCreditRecord.setOperator(getUsername());
+        sysCreditRecord.setApplicants(sysCredit.getUsername());
+        sysCreditRecord.setCreateTime(DateUtils.getNowDate());
+
+        SysCreditRouteItem routeItem = sysCreditRouteItemService.selectSysCreditRouteItemById(sysCredit.getItemId());
+        // 判断审批是否通过
+        if (sysCreditRecord.getResult() == null || sysCreditRecord.getResult() != CreditStatue.SUCCESS){
+            sysCredit.setStatue(CreditStatue.FAIL);
+            sysCredit.setFinalDate(DateUtils.getNowDate());
+            sysCreditRecord.setResult(CreditStatue.FAIL);
+            // 判断审批是否结束
+        }else if (routeItem.getParentId() != null && routeItem.getParentId() == 0){
+            //通过审批，且完成全部审批
+            sysCredit.setStatue(CreditStatue.SUCCESS);
+            sysCredit.setFinalDate(DateUtils.getNowDate());
+            sysCreditRecord.setResult(CreditStatue.SUCCESS);
+        }else {
+            // 通过，进入下阶段审批
+            sysCredit.setItemId(routeItem.getParentId());
+            sysCreditRecord.setResult(CreditStatue.SUCCESS);
+        }
+        sysCreditService.updateSysCredit(sysCredit);
+        return toAjax(sysCreditRecordService.insertSysCreditRecord(sysCreditRecord));
+    }
+
+
 }

@@ -1,18 +1,17 @@
 package com.boot.credit.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.boot.common.core.domain.entity.SysDept;
+import com.boot.common.core.domain.entity.SysUser;
 import com.boot.common.utils.DateUtils;
 import com.boot.common.utils.StringUtils;
 import com.boot.credit.domain.DoubleLinkedNode;
 import com.boot.credit.domain.SysCreditRouteItem;
 import com.boot.credit.service.ISysCreditRouteItemService;
 import com.boot.system.service.ISysDeptService;
+import com.boot.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.boot.credit.mapper.SysCreditRouteMapper;
@@ -38,6 +37,9 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
     @Autowired
     private ISysDeptService iSysDeptService;
 
+    @Autowired
+    private ISysUserService userService;
+
     /**
      * 查询申请路线
      * 
@@ -53,6 +55,29 @@ public class SysCreditRouteServiceImpl implements ISysCreditRouteService
         sysCreditRoute.setData(sysCreditRouteItemService.selectSysCreditRouteItemList(routeItem));
         return sysCreditRoute;
     }
+
+    @Override
+    public List<SysCreditRoute> selectSysCreditRoute(String username) {
+        List<Long> ids = new ArrayList<>();
+        SysUser sysUser = userService.selectUserByUserName(username);
+        List<SysCreditRouteItem> sysCreditRouteItems = sysCreditRouteItemService.selectSysCreditRouteItemList(null);
+        for (SysCreditRouteItem sysCreditRouteItem : sysCreditRouteItems) {
+            List<String> strings = StringUtils.str2List(sysCreditRouteItem.getDeptId(), ",", true, true);
+            if (ids.contains(sysCreditRouteItem.getRouteId())){
+                continue;
+            }
+            for (String string : strings) {
+                if (string.equals(sysUser.getDeptId().toString())){
+                    ids.add(sysCreditRouteItem.getRouteId());
+                }
+            }
+        }
+        Long[] idArray = new Long[ids.size()];
+        ids.toArray(idArray);
+        List<SysCreditRoute> res = sysCreditRouteMapper.selectSysCreditRouteByRouteId(idArray);
+        return res;
+    }
+
 
     /**
      * 查询申请路线列表

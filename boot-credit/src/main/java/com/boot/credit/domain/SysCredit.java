@@ -29,6 +29,8 @@ public class SysCredit extends BaseEntity
     @Excel(name = "用户学号")
     private String username;
 
+    private Long itemId;
+
     /** 学分类型 */
     @Excel(name = "学分类型")
     private Long creditType;
@@ -73,7 +75,16 @@ public class SysCredit extends BaseEntity
     {
         return userId;
     }
-    public void setCreditType(Long creditType) 
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public void setCreditType(Long creditType)
     {
         this.creditType = creditType;
     }

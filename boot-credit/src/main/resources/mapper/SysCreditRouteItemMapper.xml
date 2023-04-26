@@ -32,6 +32,10 @@
         <include refid="selectSysCreditRouteItemVo"/>
         where id = #{id}
     </select>
+    <select id="selectSysCreditRouteItemListByDeptId" resultMap="SysCreditRouteItemResult">
+        <include refid="selectSysCreditRouteItemVo"/>
+        where #{deptId} in (SUBSTRING_INDEX(dept_id, ',', 10000))
+    </select>
 
     <insert id="insertSysCreditRouteItem" parameterType="SysCreditRouteItem" useGeneratedKeys="true" keyProperty="id">
         insert into sys_credit_route_item

@@ -10,7 +10,7 @@ import com.boot.common.utils.StringUtils;
 import com.boot.framework.security.context.PermissionContextHolder;
 
 /**
- * RuoYi首创 自定义权限实现，ss取自SpringSecurity首字母
+ * 自定义权限实现，ss取自SpringSecurity首字母
  * 
  * @author boot
  */

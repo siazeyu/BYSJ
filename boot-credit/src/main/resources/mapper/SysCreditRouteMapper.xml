@@ -33,6 +33,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSysCreditRouteVo"/>
         where route_id = #{routeId}
     </select>
+
+    <select id="selectSysCreditRouteByRouteIds" parameterType="String">
+        <include refid="selectSysCreditRouteVo"/>
+        where route_id in
+            <foreach item="routeId" collection="array" open="(" separator="," close=")">
+                #{ids}
+            </foreach>
+    </select>
         
     <insert id="insertSysCreditRoute" parameterType="SysCreditRoute" useGeneratedKeys="true" keyProperty="routeId">
         insert into sys_credit_route

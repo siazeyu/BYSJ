@@ -2,6 +2,7 @@ package com.boot.credit.service;
 
 import java.util.List;
 import com.boot.credit.domain.SysCredit;
+import com.boot.credit.domain.SysCreditRouteItem;
 
 /**
  * 学分申请Service接口
@@ -26,6 +27,14 @@ public interface ISysCreditService
      * @return 学分申请集合
      */
     public List<SysCredit> selectSysCreditList(SysCredit sysCredit);
+
+    /**
+     * 查询学分申请列表
+     *
+     * @param itemIds 学分申请
+     * @return 学分申请集合
+     */
+    public List<SysCredit> selectSysCreditListByItems(List<Long> itemIds);
 
     /**
      * 新增学分申请

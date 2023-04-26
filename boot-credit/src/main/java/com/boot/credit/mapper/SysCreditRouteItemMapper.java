@@ -58,4 +58,6 @@ public interface SysCreditRouteItemMapper
      * @return 结果
      */
     public int deleteSysCreditRouteItemByIds(Long[] ids);
+
+    public List<SysCreditRouteItem> selectSysCreditRouteItemListByDeptId(Long deptId);
 }

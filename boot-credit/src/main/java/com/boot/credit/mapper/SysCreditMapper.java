@@ -2,6 +2,7 @@ package com.boot.credit.mapper;
 
 import java.util.List;
 import com.boot.credit.domain.SysCredit;
+import com.boot.credit.domain.SysCreditRouteItem;
 
 /**
  * 学分申请Mapper接口
@@ -58,4 +59,7 @@ public interface SysCreditMapper
      * @return 结果
      */
     public int deleteSysCreditByIds(Long[] ids);
+
+    public List<SysCredit> selectSysCreditListByItems(List<Long> itemIds);
+
 }

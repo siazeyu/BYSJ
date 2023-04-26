@@ -2,6 +2,7 @@ package com.boot.credit.service;
 
 import java.util.List;
 import com.boot.credit.domain.SysCreditRoute;
+import com.boot.credit.domain.SysCreditRouteItem;
 
 /**
  * 申请路线Service接口
@@ -18,6 +19,14 @@ public interface ISysCreditRouteService
      * @return 申请路线
      */
     public SysCreditRoute selectSysCreditRouteByRouteId(Long routeId);
+
+    /**
+     * 查询用户审批的路线
+     * @param username 用户主键
+     * @return 申请路线
+     */
+    public List<SysCreditRoute> selectSysCreditRoute(String username);
+
 
     /**
      * 查询申请路线列表

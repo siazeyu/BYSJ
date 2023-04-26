@@ -28,6 +28,14 @@ public interface ISysCreditRouteItemService
     public List<SysCreditRouteItem> selectSysCreditRouteItemList(SysCreditRouteItem sysCreditRouteItem);
 
     /**
+     * 通过部门Id查询路线子项列表
+     *
+     * @param deptId 部门id
+     * @return 申请路线子项集合
+     */
+    public List<SysCreditRouteItem> selectSysCreditRouteItemListByDeptId(Long deptId);
+
+    /**
      * 新增申请路线子项
      * 
      * @param sysCreditRouteItem 申请路线子项
@@ -58,4 +66,10 @@ public interface ISysCreditRouteItemService
      * @return 结果
      */
     public int deleteSysCreditRouteItemById(Long id);
+
+    /**
+     * 检查子项是否结束
+     * @return
+     */
+    public boolean itemIsFinish(Long id);
 }

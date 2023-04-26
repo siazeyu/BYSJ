@@ -22,6 +22,14 @@ public interface SysCreditRouteMapper
     public SysCreditRoute selectSysCreditRouteByRouteId(Long routeId);
 
     /**
+     * 查询申请路线
+     *
+     * @param ids 申请路线主键
+     * @return 申请路线
+     */
+    public List<SysCreditRoute> selectSysCreditRouteByRouteId(Long[] ids);
+
+    /**
      * 查询申请路线列表
      * 
      * @param sysCreditRoute 申请路线

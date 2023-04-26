@@ -43,6 +43,11 @@ public class SysCreditRouteItemServiceImpl implements ISysCreditRouteItemService
         return sysCreditRouteItemMapper.selectSysCreditRouteItemList(sysCreditRouteItem);
     }
 
+    @Override
+    public List<SysCreditRouteItem> selectSysCreditRouteItemListByDeptId(Long deptId) {
+        return sysCreditRouteItemMapper.selectSysCreditRouteItemListByDeptId(deptId);
+    }
+
     /**
      * 新增申请路线子项
      * 
@@ -89,5 +94,11 @@ public class SysCreditRouteItemServiceImpl implements ISysCreditRouteItemService
     public int deleteSysCreditRouteItemById(Long id)
     {
         return sysCreditRouteItemMapper.deleteSysCreditRouteItemById(id);
+    }
+
+    @Override
+    public boolean itemIsFinish(Long id) {
+        SysCreditRouteItem routeItem = sysCreditRouteItemMapper.selectSysCreditRouteItemById(id);
+        return routeItem.getParentId() != null && routeItem.getNextId() != 0;
     }
 }

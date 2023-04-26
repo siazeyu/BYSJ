@@ -35,7 +35,7 @@ public class SysCreditRecord extends BaseEntity
     private String creditTypeName;
 
     /** 学分 */
-    private Long credit;
+    private BigDecimal credit;
 
     /** 申请者 */
     @Excel(name = "申请者")
@@ -47,7 +47,7 @@ public class SysCreditRecord extends BaseEntity
 
     /** 审核结果 */
     @Excel(name = "审核结果")
-    private Integer result;
+    private Long result;
 
     /** 操作时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -96,12 +96,12 @@ public class SysCreditRecord extends BaseEntity
     {
         return creditTypeName;
     }
-    public void setCredit(Long credit) 
+    public void setCredit(BigDecimal credit)
     {
         this.credit = credit;
     }
 
-    public Long getCredit() 
+    public BigDecimal getCredit()
     {
         return credit;
     }
@@ -123,12 +123,12 @@ public class SysCreditRecord extends BaseEntity
     {
         return operator;
     }
-    public void setResult(Integer result) 
+    public void setResult(Long result)
     {
         this.result = result;
     }
 
-    public Integer getResult() 
+    public Long getResult()
     {
         return result;
     }
